@@ -57,3 +57,5 @@ urlpatterns = [
     path('api/', api_root, name='api-root-alt'),
     path('api/', include(router.urls)),
 ]
+
+#comentário
