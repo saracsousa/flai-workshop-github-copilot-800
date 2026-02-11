@@ -15,6 +15,7 @@
         "PYTHONPATH": "${workspaceFolder}/octofit-tracker/backend"
       }
     },
+      // Comentário
     {
       "name": "Launch React Frontend",
       "type": "node",
