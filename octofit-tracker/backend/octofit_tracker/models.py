@@ -2,6 +2,7 @@ from djongo import models
 
 class User(models.Model):
     _id = models.ObjectIdField(primary_key=True)
+    username = models.CharField(max_length=100, default='')
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     team = models.CharField(max_length=100)
@@ -11,12 +12,13 @@ class User(models.Model):
         db_table = 'users'
     
     def __str__(self):
-        return self.name
+        return self.username or self.name
 
 
 class Team(models.Model):
     _id = models.ObjectIdField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, default='')
     members_count = models.IntegerField(default=0)
     total_points = models.IntegerField(default=0)
     
@@ -32,6 +34,7 @@ class Activity(models.Model):
     user_email = models.EmailField()
     activity_type = models.CharField(max_length=50)
     duration = models.IntegerField()  # in minutes
+    distance = models.FloatField(null=True, blank=True, default=0.0)  # in km
     points = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
     
@@ -48,6 +51,7 @@ class Leaderboard(models.Model):
     user_name = models.CharField(max_length=100)
     team = models.CharField(max_length=100)
     total_points = models.IntegerField()
+    activity_count = models.IntegerField(default=0)
     rank = models.IntegerField()
     
     class Meta:

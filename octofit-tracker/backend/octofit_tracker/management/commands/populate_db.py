@@ -22,12 +22,14 @@ class Command(BaseCommand):
         # Create teams
         team_marvel = Team.objects.create(
             name='Team Marvel',
+            description='The mightiest heroes of Earth assembled to protect the world from threats too big for any one hero',
             members_count=0,
             total_points=0
         )
         
         team_dc = Team.objects.create(
             name='Team DC',
+            description='The Justice League defending truth, justice, and protecting Earth from powerful villains',
             members_count=0,
             total_points=0
         )
@@ -36,26 +38,26 @@ class Command(BaseCommand):
         
         # Create Marvel superhero users
         marvel_heroes = [
-            {'name': 'Iron Man', 'email': 'ironman@marvel.com'},
-            {'name': 'Captain America', 'email': 'captainamerica@marvel.com'},
-            {'name': 'Thor', 'email': 'thor@marvel.com'},
-            {'name': 'Hulk', 'email': 'hulk@marvel.com'},
-            {'name': 'Black Widow', 'email': 'blackwidow@marvel.com'},
-            {'name': 'Spider-Man', 'email': 'spiderman@marvel.com'},
-            {'name': 'Doctor Strange', 'email': 'doctorstrange@marvel.com'},
-            {'name': 'Black Panther', 'email': 'blackpanther@marvel.com'},
+            {'name': 'Iron Man', 'username': 'ironman', 'email': 'ironman@marvel.com'},
+            {'name': 'Captain America', 'username': 'capamerica', 'email': 'captainamerica@marvel.com'},
+            {'name': 'Thor', 'username': 'thor_odinson', 'email': 'thor@marvel.com'},
+            {'name': 'Hulk', 'username': 'hulk_smash', 'email': 'hulk@marvel.com'},
+            {'name': 'Black Widow', 'username': 'blackwidow', 'email': 'blackwidow@marvel.com'},
+            {'name': 'Spider-Man', 'username': 'spidey', 'email': 'spiderman@marvel.com'},
+            {'name': 'Doctor Strange', 'username': 'drstrange', 'email': 'doctorstrange@marvel.com'},
+            {'name': 'Black Panther', 'username': 'blackpanther', 'email': 'blackpanther@marvel.com'},
         ]
         
         # Create DC superhero users
         dc_heroes = [
-            {'name': 'Superman', 'email': 'superman@dc.com'},
-            {'name': 'Batman', 'email': 'batman@dc.com'},
-            {'name': 'Wonder Woman', 'email': 'wonderwoman@dc.com'},
-            {'name': 'The Flash', 'email': 'flash@dc.com'},
-            {'name': 'Aquaman', 'email': 'aquaman@dc.com'},
-            {'name': 'Green Lantern', 'email': 'greenlantern@dc.com'},
-            {'name': 'Cyborg', 'email': 'cyborg@dc.com'},
-            {'name': 'Shazam', 'email': 'shazam@dc.com'},
+            {'name': 'Superman', 'username': 'superman', 'email': 'superman@dc.com'},
+            {'name': 'Batman', 'username': 'batman', 'email': 'batman@dc.com'},
+            {'name': 'Wonder Woman', 'username': 'wonderwoman', 'email': 'wonderwoman@dc.com'},
+            {'name': 'The Flash', 'username': 'flash', 'email': 'flash@dc.com'},
+            {'name': 'Aquaman', 'username': 'aquaman', 'email': 'aquaman@dc.com'},
+            {'name': 'Green Lantern', 'username': 'greenlantern', 'email': 'greenlantern@dc.com'},
+            {'name': 'Cyborg', 'username': 'cyborg', 'email': 'cyborg@dc.com'},
+            {'name': 'Shazam', 'username': 'shazam', 'email': 'shazam@dc.com'},
         ]
         
         marvel_users = []
@@ -63,6 +65,7 @@ class Command(BaseCommand):
         
         for hero in marvel_heroes:
             user = User.objects.create(
+                username=hero['username'],
                 name=hero['name'],
                 email=hero['email'],
                 team='Team Marvel',
@@ -72,6 +75,7 @@ class Command(BaseCommand):
         
         for hero in dc_heroes:
             user = User.objects.create(
+                username=hero['username'],
                 name=hero['name'],
                 email=hero['email'],
                 team='Team DC',
@@ -120,6 +124,16 @@ class Command(BaseCommand):
             for i in range(num_activities):
                 activity_type = random.choice(activity_types)
                 duration = random.randint(20, 90)
+                
+                # Add distance for running and cycling
+                distance = 0.0
+                if activity_type == 'Running':
+                    distance = round(random.uniform(3.0, 15.0), 2)  # 3-15 km
+                elif activity_type == 'Cycling':
+                    distance = round(random.uniform(10.0, 50.0), 2)  # 10-50 km
+                elif activity_type == 'Swimming':
+                    distance = round(random.uniform(0.5, 3.0), 2)  # 0.5-3 km
+                
                 points = duration // 2  # Simple points calculation
                 date = datetime.now() - timedelta(days=random.randint(0, 30))
                 
@@ -127,6 +141,7 @@ class Command(BaseCommand):
                     user_email=user.email,
                     activity_type=activity_type,
                     duration=duration,
+                    distance=distance if distance > 0 else None,
                     points=points,
                     date=date
                 )
@@ -150,11 +165,13 @@ class Command(BaseCommand):
         all_users_sorted = sorted(all_users, key=lambda u: u.total_points, reverse=True)
         
         for rank, user in enumerate(all_users_sorted, start=1):
+            activity_count = Activity.objects.filter(user_email=user.email).count()
             Leaderboard.objects.create(
                 user_email=user.email,
-                user_name=user.name,
+                user_name=user.username,
                 team=user.team,
                 total_points=user.total_points,
+                activity_count=activity_count,
                 rank=rank
             )
         

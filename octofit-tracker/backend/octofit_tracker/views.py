@@ -84,11 +84,13 @@ class LeaderboardViewSet(viewsets.ReadOnlyModelViewSet):
         
         # Create new leaderboard entries
         for rank, user in enumerate(users, start=1):
+            activity_count = Activity.objects.filter(user_email=user.email).count()
             Leaderboard.objects.create(
                 user_email=user.email,
-                user_name=user.name,
+                user_name=user.username,
                 team=user.team,
                 total_points=user.total_points,
+                activity_count=activity_count,
                 rank=rank
             )
         
